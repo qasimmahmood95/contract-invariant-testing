@@ -24,6 +24,11 @@ expect_red() {
   if env "$@" >"$log" 2>&1; then
     echo "DEAD LEVER: $label stayed green ($log)"
     failures=$((failures + 1))
+  elif ! grep -q '\[FAIL' "$log"; then
+    # Non-zero exit without a test failure is infrastructure breakage
+    # (compile error, bad filter, env regression) — never certify it as red.
+    echo "INFRA FAILURE: $label exited non-zero without a test failure ($log)"
+    failures=$((failures + 1))
   else
     echo "red: $label — $(grep -m1 -oE '\[FAIL[^]]*' "$log" | head -c 100)"
   fi
@@ -45,8 +50,9 @@ done
 # replays the committed counterexample (test/failures/) and must fail INV-1.
 expect_red "defect-inv1" SUT=eager forge test --match-test invariant_INV1_delayIntegrity
 
-if ! git diff --exit-code --quiet -- test/failures/; then
-  echo "REPLAY DRIFT: the defect run rewrote the committed corpus"
+# --porcelain (not diff) so untracked additions count as drift too.
+if [ -n "$(git status --porcelain -- test/failures/)" ]; then
+  echo "REPLAY DRIFT: the defect run changed the committed corpus tree"
   failures=$((failures + 1))
 fi
 
