@@ -22,8 +22,8 @@ and not a security audit.
 handler with bounded actions, forward-only warps, and try/catch revert probes;
 every invariant is proven falsifiable via `FALSIFY=INV-<n>` harness levers.
 Targeted fuzz tests land in M3; the planted defect and its shrunk
-counterexample — the headline artifact — land in M4. The full milestone plan and the invariant → custody-risk table
-are in [docs/PLAN.md](docs/PLAN.md).
+counterexample — the headline artifact — land in M4. The full milestone plan
+and the invariant → custody-risk table are in [docs/PLAN.md](docs/PLAN.md).
 
 ## Why a timelock
 
