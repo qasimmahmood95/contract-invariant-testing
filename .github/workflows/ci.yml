@@ -72,8 +72,11 @@ jobs:
 
   # M2 exit criterion (docs/PLAN.md §4): the invariant campaign must be
   # deterministic across two consecutive runs at the pinned
-  # (forge, solc, seed, config) tuple. Result lines carry runs/calls/reverts
-  # counts, so a single diverging sequence breaks the diff.
+  # (forge, solc, seed, config) tuple. [PASS/FAIL] lines only catch outcome
+  # flakiness (their runs/calls/reverts counts are config constants), so the
+  # diff also covers the per-selector metrics table — call counts per handler
+  # action are a fingerprint of the actual sequences: they differ across
+  # seeds and are byte-stable across same-seed runs.
   determinism:
     name: invariant determinism (two consecutive runs)
     runs-on: ubuntu-latest
@@ -89,8 +92,8 @@ jobs:
 
       - name: run invariant campaign twice and diff
         run: |
-          forge test --match-path 'test/invariant/*' | grep -E '^\[(PASS|FAIL)' | sort > run1.txt
-          forge test --match-path 'test/invariant/*' | grep -E '^\[(PASS|FAIL)' | sort > run2.txt
+          forge test --match-path 'test/invariant/*' | grep -E '^(\[(PASS|FAIL)|\|)' | sort > run1.txt
+          forge test --match-path 'test/invariant/*' | grep -E '^(\[(PASS|FAIL)|\|)' | sort > run2.txt
           diff -u run1.txt run2.txt
           echo "deterministic across two consecutive runs:"
           cat run1.txt
