@@ -69,3 +69,31 @@ jobs:
 
       - name: test
         run: forge test -vvv
+
+  # M2 exit criterion (docs/PLAN.md §4): the invariant campaign must be
+  # deterministic across two consecutive runs at the pinned
+  # (forge, solc, seed, config) tuple. [PASS/FAIL] lines only catch outcome
+  # flakiness (their runs/calls/reverts counts are config constants), so the
+  # diff also covers the per-selector metrics table — call counts per handler
+  # action are a fingerprint of the actual sequences: they differ across
+  # seeds and are byte-stable across same-seed runs.
+  determinism:
+    name: invariant determinism (two consecutive runs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@b00af27efadbc7b4ca8b82abbd903b17cc874d2a # v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+
+      - name: run invariant campaign twice and diff
+        run: |
+          forge test --match-path 'test/invariant/*' | grep -E '^(\[(PASS|FAIL)|\|)' | sort > run1.txt
+          forge test --match-path 'test/invariant/*' | grep -E '^(\[(PASS|FAIL)|\|)' | sort > run2.txt
+          diff -u run1.txt run2.txt
+          echo "deterministic across two consecutive runs:"
+          cat run1.txt
