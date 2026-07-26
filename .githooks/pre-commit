@@ -11,7 +11,7 @@ if command -v gitleaks >/dev/null 2>&1; then
   echo "· gitleaks (staged changes)"
   # --staged scans what is about to be committed, which is the only thing this
   # hook can still prevent. Full history is scanned separately in CI.
-  gitleaks protect --staged --config .gitleaks.toml --redact --no-banner
+  gitleaks git --staged --config .gitleaks.toml --redact --no-banner
 else
   echo "⚠ gitleaks not installed — skipping local secret scan (CI still enforces it)"
   echo "  install: https://github.com/gitleaks/gitleaks#installing"
@@ -20,4 +20,6 @@ fi
 if command -v forge >/dev/null 2>&1; then
   echo "· forge fmt (check)"
   forge fmt --check
+else
+  echo "⚠ forge not installed — skipping fmt check (CI still enforces it)"
 fi
