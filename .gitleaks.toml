@@ -1,0 +1,19 @@
+# gitleaks config for contract-invariant-testing.
+#
+# This repo must contain zero credential material. There is no deployment, no
+# RPC endpoint, and no funded key anywhere: the SUT deploys locally in test
+# setUp() (ADR-0003), and any signing keys in handlers are derived in-test
+# (makeAddr / vm.createWallet), never committed as literals. The default
+# ruleset runs in full; if it fires, the fix is to stop committing the value —
+# not to widen the allowlist.
+
+title = "contract-invariant-testing"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Config that describes secret *shape* without containing secret material"
+paths = [
+  '''\.gitleaks\.toml$''',
+]
