@@ -7,6 +7,9 @@
 src = "test"
 test = "test"
 libs = ["lib"]
+# remappings.txt is the single explicit source of truth; without this, forge
+# also auto-imports remappings from OZ's nested dev-dependency submodules.
+auto_detect_remappings = false
 solc_version = "0.8.28"
 evm_version = "cancun"
 optimizer = true
