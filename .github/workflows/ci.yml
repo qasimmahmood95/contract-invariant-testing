@@ -97,3 +97,40 @@ jobs:
           diff -u run1.txt run2.txt
           echo "deterministic across two consecutive runs:"
           cat run1.txt
+
+  # M3 (docs/PLAN.md §4): coverage of the SUT's execution paths, reported
+  # without vanity totals — the summary is filtered to TimelockController.sol
+  # and the harness files; the all-libs Total row counts every OZ/forge-std
+  # line ever compiled and is deliberately omitted.
+  coverage:
+    name: coverage (SUT + harness, filtered)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@b00af27efadbc7b4ca8b82abbd903b17cc874d2a # v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+
+      - name: forge coverage (optimizer off, libs included so the SUT is measured)
+        run: forge coverage --include-libs --report lcov --report summary | tee coverage.txt
+
+      - name: filtered summary
+        run: |
+          {
+            echo "### Coverage — TimelockController (SUT) + harness"
+            echo ""
+            echo '```'
+            grep -E '^\| File' coverage.txt
+            grep -E '^\| (lib/openzeppelin-contracts/contracts/governance/TimelockController\.sol|test/)' coverage.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: upload lcov artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: lcov
+          path: lcov.info
