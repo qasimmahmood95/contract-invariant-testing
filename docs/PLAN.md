@@ -1,9 +1,10 @@
 # Milestone plan — contract-invariant-testing
 
-Status: **M0 draft, awaiting owner review before any code.**
-This document is the pre-ADR proposal; on approval, the target rationale
-becomes ADR-0001 and the methodology/hermeticity/determinism sections become
-ADRs 0002–0004.
+Status: **executed through M5.** Approved at M0 (2026-07-26); the target
+rationale became ADR-0001 and the methodology/hermeticity/determinism
+sections ADRs 0002–0004. §3 carries the M4 implementation notes recording
+where reality deviated from this plan. The README is the current front door;
+this document is the plan of record.
 
 ## 1. Recommended target: OpenZeppelin `TimelockController` (pinned tag `v5.6.1`)
 
