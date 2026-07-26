@@ -33,6 +33,8 @@ contract EagerTimelockController is TimelockController {
     function getTimestamp(bytes32 id) public view override returns (uint256) {
         uint256 ts = super.getTimestamp(id);
         if (ts <= DONE_TIMESTAMP) return ts; // preserve Unset(0)/Done(1) sentinels
-        return ts > _OPS_GRACE ? ts - _OPS_GRACE : DONE_TIMESTAMP + 1;
+        // Strictly above the grace + Done margin so no Waiting value can ever
+        // collapse onto a sentinel (unreachable under suite delays, but exact).
+        return ts > _OPS_GRACE + DONE_TIMESTAMP ? ts - _OPS_GRACE : DONE_TIMESTAMP + 1;
     }
 }
