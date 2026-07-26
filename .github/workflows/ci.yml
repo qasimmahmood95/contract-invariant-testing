@@ -163,7 +163,7 @@ jobs:
             echo "### Planted defect (SUT=eager): INV-1 shrunk counterexample"
             echo ""
             echo '```'
-            sed -n '/\[FAIL/,/^ invariant/p' falsify-out/defect-inv1.log | head -8
+            sed -n '/\[FAIL/,/^ invariant/p;/^ invariant/q' falsify-out/defect-inv1.log
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
