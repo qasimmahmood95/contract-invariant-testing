@@ -1,0 +1,4 @@
+# Normalize everything to LF in the repo and in checkouts — Solidity, TOML,
+# YAML and shell hooks are all LF-native, and byte-identical sources are part
+# of the determinism contract (ADR-0004).
+* text=auto eol=lf
