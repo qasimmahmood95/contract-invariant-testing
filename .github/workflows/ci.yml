@@ -1,0 +1,68 @@
+# Hermetic CI (ADR-0003/0004): no network beyond checkout + submodules — no
+# RPC endpoints, no forking. Toolchain pinned; the fuzz seed lives in
+# foundry.toml, so a green run here reproduces byte-for-byte from a clean
+# clone at the same pins.
+name: ci
+
+on:
+  push:
+    branches: [main, "defect/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FOUNDRY_VERSION: v1.7.1
+  GITLEAKS_VERSION: "8.30.1"
+
+jobs:
+  secrets:
+    name: secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: a secret removed in the tip commit is still a leaked secret.
+          fetch-depth: 0
+
+      - name: install gitleaks
+        run: |
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: scan history
+        run: gitleaks detect --config .gitleaks.toml --redact --verbose --no-banner
+
+  test:
+    name: forge build + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+
+      - name: versions
+        run: forge --version
+
+      - name: fmt check
+        run: forge fmt --check
+
+      - name: build
+        run: forge build --sizes
+
+      - name: test
+        run: forge test -vvv
