@@ -29,3 +29,8 @@ failure_persist_dir = "test/failures/invariant"
 
 [fmt]
 line_length = 100
+
+[lint]
+# block-timestamp comparisons are the entire point of this suite: readiness
+# checks against a clock the harness itself controls via bounded vm.warp.
+exclude_lints = ["block-timestamp"]
