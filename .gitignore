@@ -2,5 +2,9 @@
 cache/
 out/
 
+# Coverage outputs (CI publishes lcov as an artifact, never committed)
+lcov.info
+coverage.txt
+
 # NOTE: test/failures/ (fuzz + invariant counterexample corpus) is committed
 # on purpose from M4 — it is part of the determinism contract, not build junk.
