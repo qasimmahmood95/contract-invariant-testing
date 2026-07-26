@@ -47,7 +47,7 @@ contract TimelockInvariants is Test {
         // defective variant (test/defect/) so the falsification harness — and
         // the red-by-design defect/eager-execution branch — can point this
         // same campaign, ghost truth unchanged, at the planted bug.
-        timelock = keccak256(bytes(vm.envOr("SUT", string("standard")))) == keccak256("eager")
+        timelock = keccak256(bytes(vm.envOr("SUT", string("eager")))) == keccak256("eager")
             ? TimelockController(
                 payable(new EagerTimelockController(MIN_DELAY, proposers, executors, address(0)))
             )
