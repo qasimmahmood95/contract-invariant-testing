@@ -5,6 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 import {MockTarget} from "../mocks/MockTarget.sol";
 import {TimelockHandler} from "./handlers/TimelockHandler.sol";
+import {EagerTimelockController} from "../defect/EagerTimelockController.sol";
 
 /// M2 invariant campaign (docs/PLAN.md §2): the fuzzer drives adversarial call
 /// sequences through TimelockHandler's bounded actions; after every call each
@@ -41,8 +42,16 @@ contract TimelockInvariants is Test {
         executors[1] = executor2;
 
         // Self-administered config under test (ADR-0001): no external admin,
-        // closed executor role.
-        timelock = new TimelockController(MIN_DELAY, proposers, executors, address(0));
+        // closed executor role. SUT selection (M4): default is the pinned,
+        // honest TimelockController; SUT=eager deploys the deliberately
+        // defective variant (test/defect/) so the falsification harness — and
+        // the red-by-design defect/eager-execution branch — can point this
+        // same campaign, ghost truth unchanged, at the planted bug.
+        timelock = keccak256(bytes(vm.envOr("SUT", string("standard")))) == keccak256("eager")
+            ? TimelockController(
+                payable(new EagerTimelockController(MIN_DELAY, proposers, executors, address(0)))
+            )
+            : new TimelockController(MIN_DELAY, proposers, executors, address(0));
         mockTarget = new MockTarget();
         handler = new TimelockHandler(
             timelock,

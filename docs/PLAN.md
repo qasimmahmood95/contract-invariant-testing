@@ -139,6 +139,25 @@ perturb its ghost accounting for one targeted invariant (e.g. under-count a
 cancel for INV-3, skip a revert-probe counter for INV-4). `npm run falsify`
 iterates all levers and requires every invariant to go red on its own lever.
 
+**M4 implementation notes** (recorded honestly rather than papered over):
+
+- The defect trips **INV-5 as well as INV-1**: in the grace window the SUT
+  reports `Ready` where the ghost lifecycle expects `Waiting`, so the
+  state-machine comparison sees the same lie the delay-integrity property
+  does. The "7 of 8 invariants stay green" expectation above was written
+  before INV-5 compared exact states. Both reds are genuine signal; the
+  falsify gate pins INV-1 as the headline.
+- **FZ-1 would independently catch this defect class** at the exact boundary
+  (its `readyAt − 1s` leg executes early under the variant) — the
+  example-shaped tests here are stronger than the typical unit tests the
+  planted-defect story contrasts with. The `defect/eager-execution` branch
+  flips only the invariant campaign's SUT default, so the campaign's shrunk
+  sequence remains the artifact; FZ-1's redundancy is defense in depth, noted
+  in the README at M5.
+- The defect campaign shrinks to a **3-call counterexample**
+  (`scheduleDelayUpdate → warpToBoundary → executeOp` — any schedule works;
+  the fuzzer happened to pick the delay-update op), inside the planned ≤ 4.
+
 ## 4. Milestones (one PR each; code-review + verification subagents gate every PR)
 
 | # | Milestone | Contents | Exit criteria |

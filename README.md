@@ -18,14 +18,15 @@ This is QA methodology applied to an existing, audited contract — written as
 test harnesses only. It is not contract development, not exploit tooling,
 and not a security audit.
 
-**Status: M3 (targeted fuzz + coverage).** INV-1…INV-8 run against a
-ghost-accounting handler with bounded actions, forward-only warps, and
-try/catch revert probes; FZ-1…FZ-6 pin the example-shaped edges (the exact
-readiness second, exact revert selectors, batch atomicity); CI reports SUT
-path coverage filtered to `TimelockController.sol`. Every invariant and fuzz
-test is proven falsifiable via `FALSIFY=<id>` harness levers. The planted
-defect and its shrunk counterexample — the headline artifact — land in M4.
-The full milestone plan and the invariant → custody-risk table are in
+**Status: M4 (planted defect + falsification).** INV-1…INV-8 run against a
+ghost-accounting handler; FZ-1…FZ-6 pin the example-shaped edges; CI reports
+SUT path coverage filtered to `TimelockController.sol`. `npm run falsify`
+proves every property can fail: all 14 `FALSIFY=<id>` harness levers plus the
+planted defect (`test/defect/EagerTimelockController.sol`, a 15-minute "ops
+grace window" subclass) go red, and the defect's committed counterexample —
+a 3-call `schedule → warp → execute` sequence — replays byte-for-byte.
+Release polish (headline links, reproduce-from-clean-clone walkthrough) lands
+in M5. The full milestone plan and the invariant → custody-risk table are in
 [docs/PLAN.md](docs/PLAN.md).
 
 ## Why a timelock

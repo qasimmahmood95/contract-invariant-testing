@@ -6,5 +6,9 @@ out/
 lcov.info
 coverage.txt
 
+# Falsification harness logs (CI publishes these as an artifact); the
+# committed corpus under test/failures/ is separate and IS tracked.
+falsify-out/
+
 # NOTE: test/failures/ (fuzz + invariant counterexample corpus) is committed
 # on purpose from M4 — it is part of the determinism contract, not build junk.
