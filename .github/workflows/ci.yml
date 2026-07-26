@@ -134,3 +134,42 @@ jobs:
         with:
           name: lcov
           path: lcov.info
+
+  # M4 (docs/PLAN.md §3): every property must be provably falsifiable. The
+  # harness runs all 14 FALSIFY levers plus the planted-defect campaign
+  # (SUT=eager), asserts each goes red, and checks the committed
+  # counterexample corpus replays byte-for-byte. The defect's shrunk
+  # schedule → warp → execute sequence is the repo's headline artifact.
+  falsify:
+    name: falsify (all levers + planted defect red)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@b00af27efadbc7b4ca8b82abbd903b17cc874d2a # v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+
+      - name: run falsification harness
+        run: npm run falsify
+
+      - name: publish shrunk counterexample
+        if: always()
+        run: |
+          {
+            echo "### Planted defect (SUT=eager): INV-1 shrunk counterexample"
+            echo ""
+            echo '```'
+            sed -n '/\[FAIL/,/^ invariant/p' falsify-out/defect-inv1.log | head -8
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: upload falsification logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: falsify-out
+          path: falsify-out/
