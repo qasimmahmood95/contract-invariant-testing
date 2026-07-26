@@ -19,7 +19,7 @@ import {TimelockHandler} from "./handlers/TimelockHandler.sol";
 /// disturbs the state machine too) — the requirement is that each invariant's
 /// own lever turns it red, proven deterministically before merge.
 contract TimelockInvariants is Test {
-    uint256 internal constant MIN_DELAY = 2 days; // must match TimelockHandler.ghost_minDelay init
+    uint256 internal constant MIN_DELAY = 2 days;
 
     TimelockController internal timelock;
     MockTarget internal mockTarget;
@@ -50,7 +50,8 @@ contract TimelockInvariants is Test {
             [proposer1, proposer2],
             [executor1, executor2],
             outsider,
-            probationer
+            probationer,
+            MIN_DELAY
         );
 
         // The campaign may only enter through the handler's bounded actions —

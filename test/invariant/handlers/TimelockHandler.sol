@@ -160,7 +160,8 @@ contract TimelockHandler is Test {
         address[2] memory proposers_,
         address[2] memory executors_,
         address outsider_,
-        address probationer_
+        address probationer_,
+        uint256 initialMinDelay_
     ) {
         timelock = timelock_;
         mockTarget = mockTarget_;
@@ -176,7 +177,7 @@ contract TimelockHandler is Test {
 
         _falsify = keccak256(bytes(vm.envOr("FALSIFY", string(""))));
 
-        ghost_minDelay = 2 days; // must match TimelockInvariants.MIN_DELAY
+        ghost_minDelay = initialMinDelay_; // the minDelay the timelock was deployed with
 
         // Expected role matrix per constructor wiring (ADR-0001): proposers
         // get PROPOSER + CANCELLER, executors get EXECUTOR, the timelock
@@ -518,13 +519,6 @@ contract TimelockHandler is Test {
 
     function trackedAccounts() external view returns (address[] memory) {
         return _trackedAccounts;
-    }
-
-    function totalProbeAttempts() external view returns (uint256) {
-        return ghost_shortDelayAttempts + ghost_unauthorizedScheduleAttempts
-            + ghost_unauthorizedCancelAttempts + ghost_unauthorizedExecuteAttempts
-            + ghost_directDelayAttempts + ghost_directRoleAttempts + ghost_resurrectScheduleAttempts
-            + ghost_resurrectExecuteAttempts + ghost_earlyExecuteAttempts;
     }
 
     // ─────────────────────────── internals ───────────────────────────

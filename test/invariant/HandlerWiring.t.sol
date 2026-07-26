@@ -9,8 +9,9 @@ import {TimelockHandler} from "./handlers/TimelockHandler.sol";
 /// Deterministic non-vacuity proof for the M2 campaign (CLAUDE.md hard
 /// limit 3): with fixed seeds, every handler action visibly moves ghost +
 /// SUT state and every must-revert probe fires and is rejected exactly once.
-/// This is what lets afterInvariant() keep only a light aggregate floor —
-/// per-probe wiring is pinned here, independent of campaign randomness.
+/// The campaign itself deliberately carries no afterInvariant() non-vacuity
+/// floor (it would wreck shrinking — see TimelockInvariants.t.sol), so this
+/// test is where liveness is pinned, independent of campaign randomness.
 ///
 /// Property: each handler action/probe is live (not a silent no-op) and its
 ///           ghost bookkeeping matches the SUT effect it wraps.
@@ -50,7 +51,8 @@ contract HandlerWiringTest is Test {
             [proposer1, proposer2],
             [executor1, executor2],
             outsider,
-            probationer
+            probationer,
+            MIN_DELAY
         );
     }
 
