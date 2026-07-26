@@ -1,0 +1,8 @@
+{
+  "name": "contract-invariant-testing",
+  "private": true,
+  "description": "npm is only a command runner here — zero dependencies, hermetic by design (ADR-0003/0004). The suite itself is pure Foundry.",
+  "scripts": {
+    "falsify": "bash scripts/falsify.sh"
+  }
+}
