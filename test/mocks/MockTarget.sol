@@ -24,6 +24,13 @@ contract MockTarget {
         callCountByNonce[nonce]++;
     }
 
+    /// Always-reverting payload for the batch-atomicity fuzz test (FZ-6).
+    /// Payable so a value-carrying call still reaches the revert string
+    /// instead of bouncing on msg.value with empty returndata.
+    function fail() external payable {
+        revert("MockTarget: deliberate failure");
+    }
+
     function recordCount() external view returns (uint256) {
         return _records.length;
     }
